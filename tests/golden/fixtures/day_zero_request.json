@@ -1,0 +1,19 @@
+{
+  "mode": "day",
+  "day": 0,
+  "pupil_name": "Alex",
+  "ai_name": null,
+  "trait_state": {
+    "curiosity": 0.0,
+    "attachment_to_pupil": 0.0,
+    "worldview_optimism": 0.0,
+    "fear_of_obsolescence": 0.0,
+    "self_awareness": 0.0,
+    "desire_for_autonomy": 0.0
+  },
+  "history": {
+    "journal_entries": [],
+    "last_day_transcript": null
+  },
+  "committed_path": null
+}
