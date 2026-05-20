@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 from app.config import settings
-from app.prompt_engine.loader import init_loader
 from app.routers import commit, health, turn
+from app.tree.loader import init_store
 
 structlog.configure(
     processors=[
@@ -24,22 +23,16 @@ log = structlog.get_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_loader(settings.prompts_dir)
-    log.info("startup", prompts_dir=str(settings.prompts_dir), llm_provider=settings.llm_provider)
+    init_store(settings.turn_configs_dir)
+    log.info("startup", turn_configs_dir=str(settings.turn_configs_dir))
     yield
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Hikaru's Day AI Engine", version="0.1.0", lifespan=lifespan)
-
-    @app.exception_handler(FileNotFoundError)
-    async def file_not_found_handler(request: Request, exc: FileNotFoundError) -> JSONResponse:
-        return JSONResponse(status_code=500, content={"detail": str(exc)})
-
     app.include_router(health.router)
     app.include_router(turn.router)
     app.include_router(commit.router)
-
     return app
 
 
