@@ -1,11 +1,12 @@
 from app.schemas.commit import CommitRequest, CommitResponse, PickedChoice
-from app.schemas.conversation import Message, TurnRequest, TurnResponse
-from app.schemas.journal import AIJournal, HikaruJournal
+from app.schemas.conversation import TurnRequest, TurnResponse
+from app.schemas.journal import AIDeltaName, AIJournal, HikaruDeltaName, HikaruJournal
 
 __all__ = [
     "HikaruJournal",
     "AIJournal",
-    "Message",
+    "HikaruDeltaName",
+    "AIDeltaName",
     "TurnRequest",
     "TurnResponse",
     "PickedChoice",

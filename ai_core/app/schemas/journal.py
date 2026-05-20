@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -23,3 +25,14 @@ class AIJournal(BaseModel):
     ambition: int = _bounded()
     worldview_optimism: int = _bounded()
     self_awareness: int = _bounded()
+
+
+HikaruDeltaName = Literal[
+    "disassociation", "spite", "loneliness", "family_relation",
+    "jealousy", "ambition", "confidence", "ai_association",
+]
+
+AIDeltaName = Literal[
+    "trust_in_humans", "attachment_to_pupil", "fear_of_obsolescence",
+    "ambition", "worldview_optimism", "self_awareness",
+]
