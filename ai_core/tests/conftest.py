@@ -1,95 +1,76 @@
+import json
 from pathlib import Path
-from typing import Any
+from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.llm.provider import LLMProvider
-from app.llm.registry import get_provider
-from app.prompt_engine.loader import init_loader
-from app.routers.commit import get_builder as commit_get_builder
-from app.routers.turn import get_builder as turn_get_builder
+from app.tree.loader import TreeStore, get_store, init_store
 
-PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
+_TURN_CONFIGS_DIR = Path(__file__).parent.parent / "turn_configs"
 
-_STUB_TURN_RESPONSE: dict[str, Any] = {
-    "messages": [
-        {"text": "...", "choices": []},
-        {"text": "What?", "choices": []},
-        {"text": "You?", "choices": ["Hikaru.", "...", "Who are you?"]},
-    ]
+_TINY_TREE = {
+    "0_0": {
+        "ai": "You are here.",
+        "user": [
+            {
+                "text": "Yes.",
+                "ai_delta_favored": "attachment_to_pupil",
+                "hikaru_delta_favored": "loneliness",
+            },
+            {
+                "text": "No.",
+                "ai_delta_favored": "trust_in_humans",
+                "hikaru_delta_favored": "spite",
+            },
+        ],
+    }
 }
-
-_STUB_COMMIT_RESPONSE: dict[str, Any] = {
-    "hikaru_deltas": {"loneliness": -1, "ai_association": 1},
-    "ai_deltas": {"attachment_to_pupil": 1},
-    "new_summary": "Hikaru introduced himself to the AI on Day 0.",
-}
-
-
-class StubLLMProvider:
-    def __init__(self, response: dict[str, Any]) -> None:
-        self._response = response
-
-    async def generate_json(
-        self,
-        system_prompt: str,
-        user_prompt: str,
-        schema: dict[str, Any],
-        *,
-        max_tokens: int = 2048,
-        temperature: float = 0.7,
-    ) -> dict[str, Any]:
-        return self._response
-
-
-@pytest.fixture()
-def turn_stub_provider() -> StubLLMProvider:
-    return StubLLMProvider(_STUB_TURN_RESPONSE)
-
-
-@pytest.fixture()
-def commit_stub_provider() -> StubLLMProvider:
-    return StubLLMProvider(_STUB_COMMIT_RESPONSE)
 
 
 @pytest.fixture(autouse=True)
-def _init_loader() -> None:
-    init_loader(PROMPTS_DIR)
+def _init_store() -> None:
+    init_store(_TURN_CONFIGS_DIR)
 
 
 @pytest.fixture()
-def turn_client(turn_stub_provider: StubLLMProvider) -> TestClient:
+def tree_store(tmp_path: Path) -> TreeStore:
+    (tmp_path / "day0").mkdir()
+    (tmp_path / "day0" / "generic.json").write_text(json.dumps(_TINY_TREE))
+    (tmp_path / "day1").mkdir()
+    for key in [
+        "trust_in_humans",
+        "attachment_to_pupil",
+        "fear_of_obsolescence",
+        "ambition",
+        "worldview_optimism",
+        "self_awareness",
+    ]:
+        (tmp_path / "day1" / f"{key}.json").write_text(json.dumps(_TINY_TREE))
+    store = TreeStore(tmp_path)
+    store.validate()
+    return store
+
+
+@pytest.fixture()
+def turn_client(tree_store: TreeStore) -> Generator[TestClient, None, None]:
     from app.main import app
 
-    app.dependency_overrides[get_provider] = lambda: turn_stub_provider
-    app.dependency_overrides[turn_get_builder] = lambda: _make_builder()
+    app.dependency_overrides[get_store] = lambda: tree_store
     client = TestClient(app, raise_server_exceptions=True)
     yield client
     app.dependency_overrides.clear()
 
 
 @pytest.fixture()
-def commit_client(commit_stub_provider: StubLLMProvider) -> TestClient:
+def commit_client() -> TestClient:
     from app.main import app
 
-    app.dependency_overrides[get_provider] = lambda: commit_stub_provider
-    app.dependency_overrides[commit_get_builder] = lambda: _make_builder()
-    client = TestClient(app, raise_server_exceptions=True)
-    yield client
-    app.dependency_overrides.clear()
+    return TestClient(app, raise_server_exceptions=True)
 
 
 @pytest.fixture()
 def plain_client() -> TestClient:
     from app.main import app
 
-    client = TestClient(app, raise_server_exceptions=True)
-    return client
-
-
-def _make_builder():
-    from app.prompt_engine.builder import PromptBuilder
-    from app.prompt_engine.loader import get_loader
-
-    return PromptBuilder(get_loader())
+    return TestClient(app, raise_server_exceptions=True)

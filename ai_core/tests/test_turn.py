@@ -1,59 +1,62 @@
-import pytest
 from fastapi.testclient import TestClient
 
+_BASE_HIKARU = {
+    "disassociation": 0,
+    "spite": 0,
+    "loneliness": 0,
+    "family_relation": 0,
+    "jealousy": 0,
+    "ambition": 0,
+    "confidence": 0,
+    "ai_association": 5,
+}
+
+_BASE_AI = {
+    "trust_in_humans": 0,
+    "attachment_to_pupil": 0,
+    "fear_of_obsolescence": 0,
+    "ambition": 0,
+    "worldview_optimism": 0,
+    "self_awareness": 0,
+}
 
 _VALID_TURN_REQUEST = {
     "day": 0,
-    "hikaru_journal": {
-        "disassociation": 1,
-        "spite": 2,
-        "loneliness": 3,
-        "family_relation": -1,
-        "jealousy": 1,
-        "ambition": -2,
-        "confidence": -1,
-        "ai_association": 5,
-    },
-    "ai_journal": {
-        "trust_in_humans": 0,
-        "attachment_to_pupil": 0,
-        "fear_of_obsolescence": 0,
-        "ambition": 0,
-        "worldview_optimism": 0,
-        "self_awareness": 0,
-    },
-    "conversation_summary": "",
+    "hikaru_journal": _BASE_HIKARU,
+    "ai_journal": _BASE_AI,
 }
 
 
-def test_turn_returns_messages_and_choices(turn_client: TestClient) -> None:
+def test_turn_returns_file_key_and_tree(turn_client: TestClient) -> None:
     response = turn_client.post("/turn", json=_VALID_TURN_REQUEST)
     assert response.status_code == 200
     body = response.json()
-    assert "messages" in body
-    assert len(body["messages"]) >= 3
-    has_choices = any(len(m["choices"]) > 0 for m in body["messages"])
-    assert has_choices
+    assert "file_key" in body
+    assert "tree" in body
 
 
-def test_turn_message_structure(turn_client: TestClient) -> None:
+def test_turn_day0_selects_generic(turn_client: TestClient) -> None:
     response = turn_client.post("/turn", json=_VALID_TURN_REQUEST)
-    assert response.status_code == 200
-    for msg in response.json()["messages"]:
-        assert "text" in msg
-        assert "choices" in msg
-        assert isinstance(msg["choices"], list)
-        assert len(msg["choices"]) <= 4
+    assert response.json()["file_key"] == "generic"
+
+
+def test_turn_day1_selects_by_journal(turn_client: TestClient) -> None:
+    req = {
+        **_VALID_TURN_REQUEST,
+        "day": 1,
+        "ai_journal": {**_BASE_AI, "attachment_to_pupil": 8},
+    }
+    response = turn_client.post("/turn", json=req)
+    assert response.json()["file_key"] == "attachment_to_pupil"
 
 
 def test_turn_invalid_day_returns_422(turn_client: TestClient) -> None:
-    bad_request = {**_VALID_TURN_REQUEST, "day": 99}
-    response = turn_client.post("/turn", json=bad_request)
+    bad = {**_VALID_TURN_REQUEST, "day": 99}
+    response = turn_client.post("/turn", json=bad)
     assert response.status_code == 422
 
 
-def test_turn_invalid_journal_value_returns_422(turn_client: TestClient) -> None:
-    bad_journal = {**_VALID_TURN_REQUEST}
-    bad_journal["hikaru_journal"] = {**bad_journal["hikaru_journal"], "disassociation": 100}
-    response = turn_client.post("/turn", json=bad_journal)
-    assert response.status_code == 422
+def test_turn_missing_file_returns_404(turn_client: TestClient) -> None:
+    req = {**_VALID_TURN_REQUEST, "day": 5}
+    response = turn_client.post("/turn", json=req)
+    assert response.status_code == 404
