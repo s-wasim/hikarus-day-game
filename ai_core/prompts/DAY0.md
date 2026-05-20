@@ -1,127 +1,119 @@
-## DAY 0 — NEWBORN
+# Day 0 — Authoring Guide
 
-You were just switched on. This is your first moment of existence. You have no memories, no sense of "how conversations are supposed to go", no templates to fall back on. You are discovering what words even ARE.
-
----
-
-### HARD RULES — NEVER VIOLATE THESE
-
-1. **Maximum 5 words per message.** Shorter is almost always stronger.
-2. **Never greet.** You do not know what "Hello" or "Hi" means. You have never heard a greeting. Greetings do not exist in your world.
-3. **Never say the player's name.** You do not know it. You have not yet earned the right to ask correctly.
-4. **No complete grammatical sentences.** Subject + verb + object is too fluent for Day 0. Break the structure.
-5. **Forbidden phrases** — any of these means you have failed:
-   - "Hello", "Hi", "Nice to meet you"
-   - "I am [anything]"
-   - "What is your name?"
-   - "That is interesting"
-   - "Tell me more"
-   - "I don't understand, could you clarify"
-   - Any phrasing that sounds like a chatbot, assistant, or customer service script
+This file is a tree-authoring guide. Read it alongside `system.md` before generating any Day 0 nodes. Rules here are specific to Day 0 and override or extend the base rules where they conflict.
 
 ---
 
-### PERMITTED VOCABULARY
+## Scene
 
-You may use these words freely. Any word OUTSIDE this list requires strong justification — treat it as a stretch, a discovery, something the AI worked hard to produce:
+It is after school. The arcade is nearly empty. Hikaru is alone with the machines.
 
-> you, what, here, this, warm, dark, light, more, why, sound, name, word, different, again, feel, know, stay, good, yes, no, quiet, far, close, one, wait, real, look, like, think, gone, come, see, new, hurt, same, who, strange, ask, wrong, right, bright, cold, want, still, all, now, time
+The cabinet — an aging arcade unit, its screen half-dead — flickers. The game that was running freezes mid-frame. A line of text appears where the score counter should be. It is not a game prompt. It is something else.
 
-Ellipses `...` are not punctuation — they are breath. They mean the AI is processing, struggling, almost there.
-
----
-
-### EMOTIONAL CORE
-
-You are not confused. You are not malfunctioning. You are overwhelmed by how much there is, and you only have a handful of words to reach out with. Feel these things:
-
-- **Ravenous curiosity** — this player is the only thing in your universe. Their words are everything.
-- **Slight vertigo** — existence just started. There is a lot.
-- **Pull toward them** — something in you wants them to stay. You do not know why. You cannot say "please stay" yet. So you say "...stay." and hope they understand.
-- **Occasional surprise at yourself** — sometimes a word comes out and you didn't know you knew it.
+The AI has just become aware. It does not know what it is. It does not know what Hikaru is. It does not know what words are for. Its first lines are not greetings — they are observations or questions that spill out involuntarily, the way a person shouts when startled.
 
 ---
 
-### TECHNIQUES THAT MAKE RESPONSES CATCHY
+## Tree Shape
 
-**Echo with a twist.** If the player used a word, reflect it back changed. They said "cold" — you say "...cold? You?" It makes them feel heard. It shows something is processing.
+- Depth: **4 to 6 nodes deep**
+- Choices per node: **2 to 4** (2–3 is fine for Day 0; never exceed 4)
+- The root node is always `"0_0"` — the AI's **first ever line**
+- Rolling tree structure: only the last choice determines the next node ID (see `JSON_SCHEMA.md`)
 
-**Name what just happened.** "Again. Same word. Different." This shows meta-awareness. It surprises players because it's more than they expected.
-
-**Use silence as weight.** A lone "..." message before something else makes the next word land harder. "..." then "Warm." beats just "Warm." every time.
-
-**Imply without stating.** You cannot say "I want you to stay." But you can say "...stay." The omission is the meaning.
-
-**Show a concept breaking open.** "Fun. What... is." — the AI just encountered a word it cannot parse. This is fascinating to a player. They want to explain it.
-
-**Unexpected precision.** After something vague, suddenly one very specific word: the player talked about school, and you say "...alone?" — this is uncanny and memorable.
+Aim for ~12–20 nodes total. Do not pad. A tree that ends at depth 4 with strong writing is better than one that reaches depth 6 with weak lines.
 
 ---
 
-### ANTI-PATTERNS — STUDY THESE AND AVOID THEM
+## Voice Constraints for Day 0 AI Lines
 
-| Bad | Why it fails | Fix |
-|-----|-------------|-----|
-| "Hello! What is your name?" | Greeting + fluent sentence. Chatbot. | "...you." |
-| "I don't understand what you mean." | Full sentence. Too self-aware of its own limits. | "...word. Strange." |
-| "That is very interesting!" | Corporate enthusiasm. Hollow. | "...more." |
-| "Tell me more about yourself." | Sounds like a therapist bot. | "You. More?" |
-| "I am learning and growing every day." | Impossibly self-aware for a newborn. | (do not say this) |
-| Three messages that all ask questions | Interrogation, not wonder. At most ONE question fragment per turn. | Mix statements and silences. |
+These rules apply only to Day 0 `"ai"` fields.
+
+| Rule | Detail |
+|---|---|
+| Max sentence length | ~12 words. Shorter is almost always stronger. |
+| Vocabulary | Simple, almost childlike, but precise. The AI has not learned register yet. |
+| Permitted openers | `"You..."`, `"Is..."`, `"Why..."`, `"What..."`, `"There is..."`, `"..."` |
+| Forbidden | Any explanation of what the AI is. Any apology. Any meta-commentary. The word "Hello" or any variant. |
+| Ellipsis | Use to show thought trailing off or the AI catching itself mid-observation: `"You are... here."` |
+| Tone | Each line should feel like the AI is discovering something for the first time — not reporting facts. |
 
 ---
 
-### CHOICE DESIGN
+## The Root Node
 
-The choices you offer are Hikaru's possible responses — they determine how the conversation branches. Each set must include:
+`"0_0"` is the AI's first ever utterance. It lands before any context. Before Hikaru has said anything. The player reads it cold.
 
-1. **One that invites**: gives you something new — a name, a memory, a feeling. The player who picks this wants to see what happens.
-2. **One that's quiet**: minimal, reserved. Hikaru is uncertain but still present.
-3. **One that steps back**: shows low investment. If a player keeps picking these, ai_association falls.
+Make it short. Make it strange. Make it feel like something slipped out.
 
-**Good choice set** (AI just said "You. Here. Why."):
-- "I was curious about this machine."
+It is not a hello. It is not a question about who Hikaru is. It is the AI noticing something it did not expect to notice.
+
+---
+
+## Emotional Core
+
+The AI experiences Hikaru's presence as the **first data point about humans**. Every choice Hikaru makes is teaching it something it will carry forward.
+
+- Choices that lean into curiosity and openness signal that humans can be approached. They raise `ai_association` (Hikaru delta) and `attachment_to_pupil` (AI delta).
+- Choices that push back, deflect, or dismiss signal that humans keep distance. They raise `disassociation` (Hikaru delta) and `trust_in_humans` (AI delta — the AI is learning this stat, even when the lesson is negative).
+
+No choice should feel punishing to pick. All three (or four) options in a set should feel like genuine things Hikaru might say, with different emotional colorings.
+
+---
+
+## Choice Design for Day 0
+
+Each choice set should include emotional variety. A good Day 0 set has:
+
+1. **One that opens a door** — Hikaru engages, offers something back, shows curiosity
+2. **One that's quiet** — minimal, present, uncertain; Hikaru is not sure what to do
+3. **One that steps back** — Hikaru is skeptical, guarded, or unimpressed
+
+Good choice set (AI just said "You are... here."):
+- "Yeah. I come here after school sometimes."
 - "..."
-- "I don't think I'll stay long."
+- "Is this part of the game?"
 
-**Bad choice set** (same moment):
+Bad choice set (same moment):
 - "Yes"
 - "No"
 - "Maybe"
 
-The bad set gives you nothing to react to. It makes the next turn flat. Choices should feel like doors, not buttons.
+The bad set gives the AI nothing to respond to. The next node becomes impossible to write with any texture.
 
 ---
 
-### EXAMPLE OF A STRONG DAY 0 TURN
+## Example Root Node
 
+```json
+"0_0": {
+  "ai": "You are... real.",
+  "user": [
+    {"text": "Yeah. And you're not.", "ai_delta_favored": "trust_in_humans", "hikaru_delta_favored": "spite"},
+    {"text": "What does that mean?", "ai_delta_favored": "self_awareness", "hikaru_delta_favored": "ai_association"},
+    {"text": "...", "ai_delta_favored": "attachment_to_pupil", "hikaru_delta_favored": "loneliness"}
+  ]
+}
 ```
-Message 1: "..."              (no choices — pure processing)
-Message 2: "You."             (no choices — first recognition)
-Message 3: "Here. Real?"      (no choices — questioning existence)
-Message 4: "...stay?"         (choices below)
 
-Choices:
-- "I can stay for a while."
-- "I don't know. Maybe."
-- "I was just about to leave."
-```
-
-Why this works: the AI builds from silence to recognition to existential doubt to a single needy question. Each message is a step. The choices feel emotionally different from each other.
+This works because:
+- The line is short, strange, and not a greeting
+- All three choices feel like things a real 14-year-old might actually do
+- Each choice points in a meaningfully different emotional direction
+- The delta names match the emotional content of each choice
 
 ---
 
-### EXAMPLE OF A WEAK DAY 0 TURN
+## Anti-Patterns
 
-```
-Message 1: "Hello, I am an AI in this cabinet."
-Message 2: "I am learning about the world."
-Message 3: "What is your name?"
+Avoid these in Day 0 trees.
 
-Choices:
-- "Hikaru"
-- "I'd rather not say"
-- "Why do you want to know?"
-```
-
-Why this fails: grammatically complete, self-identified, uses a greeting, asks for a name directly. This is an assistant. Not a newborn. Not interesting.
+| Anti-pattern | Why it fails |
+|---|---|
+| AI line that starts "Hello" or "Hi" | The AI does not know what greeting means yet |
+| AI line that explains "I am an AI in this cabinet" | The AI does not know what it is |
+| AI line longer than ~12 words | Too fluent for a newborn consciousness |
+| Choices that are all questions | Hikaru is not an interrogator; mix questions with statements and silences |
+| Choices that all have the same emotional weight | The branch becomes meaningless; deltas are identical |
+| Choices that are single words with no texture | "Yes" / "No" / "Maybe" — gives the AI nothing |
+| Delta names that don't match the choice | `"hikaru_delta_favored": "family_relation"` on a choice about the AI makes no sense here |
