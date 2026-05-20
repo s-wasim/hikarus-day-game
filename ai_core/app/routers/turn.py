@@ -1,23 +1,18 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.llm.provider import LLMProvider
-from app.llm.registry import get_provider
-from app.prompt_engine.builder import PromptBuilder
-from app.prompt_engine.loader import get_loader
 from app.schemas.conversation import TurnRequest, TurnResponse
 from app.services.turn import run_turn
+from app.tree.loader import TreeStore, get_store
 
 router = APIRouter(tags=["turn"])
 
 
-def get_builder() -> PromptBuilder:
-    return PromptBuilder(get_loader())
-
-
 @router.post("/turn", response_model=TurnResponse)
-async def turn(
+def turn(
     request: TurnRequest,
-    provider: LLMProvider = Depends(get_provider),
-    builder: PromptBuilder = Depends(get_builder),
+    store: TreeStore = Depends(get_store),
 ) -> TurnResponse:
-    return await run_turn(request, provider, builder)
+    try:
+        return run_turn(request, store)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
