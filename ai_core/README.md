@@ -21,8 +21,7 @@ uvicorn app.main:app --reload
 ## Test
 
 ```bash
-pytest                    # mocked tests only
-RUN_GOLDEN=1 pytest       # includes live Ollama tests
+pytest
 ```
 
 ## Endpoints
@@ -30,8 +29,16 @@ RUN_GOLDEN=1 pytest       # includes live Ollama tests
 | Method | Path | Purpose |
 |--------|------|---------|
 | GET | /health | Liveness check |
-| POST | /turn | Generate AI messages + player choices for a day turn |
-| POST | /commit | Apply player choices, update journals, return summary |
+| POST | /turn | Selects a conversation tree JSON file based on journal state; returns `{file_key, tree}`. No LLM involved. |
+| POST | /commit | Applies +1 delta per picked choice to the named AI and Hikaru journal fields, clamped to [-10, 10]. Returns updated journals. |
+
+## turn_configs/
+
+JSON dialogue tree files that drive conversation flow. Each file encodes a tree of AI messages and player choices for a specific day/state combination. The `POST /turn` endpoint selects the appropriate file based on the current journal state and returns the full tree to the client.
+
+## prompts/
+
+The `prompts/` directory (`system.md`, `DAY0.md`, `JSON_SCHEMA.md`) is for **dev-time authoring only** — it is not loaded or used at runtime. Use these files as reference when creating or editing `turn_configs/` JSON trees.
 
 ## Environment variables
 
